@@ -15,6 +15,12 @@ static const uint16_t GATTS_CHAR_UUID_TEST_A       = 0xFF01;
 #define FCORE_PWM_CHB 0
 #define FCORE_PWM_FREQ 100000
 
+#define FCORE_LED_CHENA 2
+#define FCORE_LED_CHADJ 3
+#define FCORE_LED_PENA 4
+#define FCORE_LED_PADJ 5
+#define FCORE_LED_FREQ 200000
+
 #define FCORE_PIN_SCL 8
 #define FCORE_PIN_SDA 2
 
@@ -50,6 +56,12 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
         return (fanval * 255) / 100;
     }
 
+    int getLedval(char *ch) {
+        int ledval = ((ch[0] - '0') % 10) * 10 + ((ch[1] - '0') % 10);
+        if (ledval == 99) ledval = 100;
+        return (ledval * 128) / 100;
+    }
+
     void onWrite(BLECharacteristic *pCharacteristic) {
         std::string value = pCharacteristic->getValue();
         
@@ -75,6 +87,18 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
                     ledcWrite(FCORE_PWM_CHB, fval);
 
                     Serial.printf("Set fan-A %4d\n", fval);
+                    break;
+                case 'E':
+                    fval = getLedval(&value[1]);
+                    ledcWrite(FCORE_LED_CHENA, fval);
+
+                    Serial.printf("Set led-E %4d\n", fval);
+                    break;
+                case 'D':
+                    fval = getLedval(&value[1]);
+                    ledcWrite(FCORE_LED_CHADJ, fval);
+
+                    Serial.printf("Set led-D %4d\n", fval);
                     break;
                 case 'V':
                     vreplys[1] = mvoltval & 0xFF;
@@ -116,6 +140,14 @@ void setup() {
     ledcSetup(FCORE_PWM_CHF, FCORE_PWM_FREQ, 8);
     ledcAttachPin(1, FCORE_PWM_CHF);
     ledcWrite(FCORE_PWM_CHF, 0);
+
+    ledcSetup(FCORE_LED_CHENA, FCORE_LED_FREQ, 7);
+    ledcAttachPin(FCORE_LED_PENA, FCORE_LED_CHENA);
+    ledcWrite(FCORE_LED_CHENA, 0);
+
+    ledcSetup(FCORE_LED_CHADJ, FCORE_LED_FREQ, 7);
+    ledcAttachPin(FCORE_LED_PADJ, FCORE_LED_CHADJ);
+    ledcWrite(FCORE_LED_CHADJ, 0);
 
     Wire.end();
     Wire.begin(FCORE_PIN_SDA, FCORE_PIN_SCL);
