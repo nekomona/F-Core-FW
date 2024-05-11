@@ -6,6 +6,7 @@
 #include <BLE2902.h>
 
 #include <Adafruit_INA219.h>
+#include <APDS9930.h>
 
 static const uint16_t GATTS_SERVICE_UUID_TEST      = 0x00FF;
 static const uint16_t GATTS_CHAR_UUID_TEST_A       = 0xFF01;
@@ -24,11 +25,13 @@ static const uint16_t GATTS_CHAR_UUID_TEST_A       = 0xFF01;
 #define FCORE_PIN_SCL 8
 #define FCORE_PIN_SDA 2
 
-
 bool deviceConnected = false;
 
 int16_t mvoltval = 0;
 int16_t mampval = 0;
+
+uint32_t ambient_light = 0;
+float ambf = 0;
 
 class ServerStatCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -128,6 +131,7 @@ BLEServer *pServer = nullptr;
 BLECharacteristic *pCharacteristic = nullptr;
 
 Adafruit_INA219 ina219;
+APDS9930 apds;
 
 void setup() {
     Serial.begin(115200);
@@ -154,9 +158,12 @@ void setup() {
 
     ina219.begin();
     // Need to re-scale to 0.01 ohm
-    ina219.setCalibration_16V_4A(); // Actually 16V, 4A
+    ina219.setCalibration_16V_400mA(); // Actually 16V, 4A since Rsample is 1/10 smaller than 219 example
     Serial.print("INA current:");
-    Serial.println(ina219.getCurrent_mA());
+    Serial.println(ina219.getCurrent_mA() * 10);
+    
+    apds.init();
+    apds.enableLightSensor(false);
 
     BLEDevice::init("F-Core v1.9");
     pServer = BLEDevice::createServer();
@@ -198,7 +205,11 @@ void loop() {
     // Serial.println(ina219.getCurrent_mA());
 
     mvoltval = (int16_t)(ina219.getBusVoltage_V() * 1000);
-    mampval = (int16_t)(ina219.getCurrent_mA());
+    mampval = (int16_t)(ina219.getCurrent_mA() * 10);
+
+    apds.readAmbientLightLux(ambf);
+    ambient_light = (uint32_t)ambf;
+    Serial.println(ambient_light);
 
     delay(1000);
 }
