@@ -29,6 +29,7 @@ void Peripheral::init() {
     
     apds.init();
     apds.enableLightSensor(false);
+    apds.setAmbientLightGain(2);
 }
 
 void Peripheral::loop() {
@@ -37,7 +38,7 @@ void Peripheral::loop() {
 
     float ambf;
     apds.readAmbientLightLux(ambf);
-    mlightval = (uint32_t)ambf;
+    mlightval = (uint32_t)(ambf*100);
 }
 
 void Peripheral::setFanF(uint8_t v) {

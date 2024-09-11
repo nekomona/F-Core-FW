@@ -16,8 +16,8 @@ void setup() {
 
 
 void loop() {
-    ble.loop();
     peri.loop();
+    ble.loop();
 
     delay(1000);
 }
