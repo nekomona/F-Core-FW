@@ -82,9 +82,9 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
                     vreplys[3] = peri.mampval & 0xFF;
                     vreplys[4] = (peri.mampval >> 8) & 0xFF;
                     vreplys[5] = peri.mlightval & 0xFF;
-                    vreplys[5] = (peri.mlightval >> 8) & 0xFF;
-                    vreplys[5] = (peri.mlightval >> 16) & 0xFF;
-                    vreplys[5] = (peri.mlightval >> 24) & 0xFF;
+                    vreplys[6] = (peri.mlightval >> 8) & 0xFF;
+                    vreplys[7] = (peri.mlightval >> 16) & 0xFF;
+                    vreplys[8] = (peri.mlightval >> 24) & 0xFF;
                     pCharacteristic->setValue(vreplys, 10);
                     pCharacteristic->notify();
                     // Serial.printf("Get battery %5d %5d\n", (uint16_t)mvoltval, (uint16_t)(mampval));
