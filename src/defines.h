@@ -9,7 +9,7 @@
 #define FCORE_LED_CHADJ 3
 #define FCORE_LED_PENA 4
 #define FCORE_LED_PADJ 5
-#define FCORE_LED_FREQ 200000
+#define FCORE_LED_FREQ (200000/4)
 
 #define FCORE_PIN_SCL 8
 #define FCORE_PIN_SDA 2

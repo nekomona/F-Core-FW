@@ -10,11 +10,11 @@ void Peripheral::init() {
     ledcAttachPin(1, FCORE_PWM_CHF);
     ledcWrite(FCORE_PWM_CHF, 0);
 
-    ledcSetup(FCORE_LED_CHENA, FCORE_LED_FREQ, 7);
+    ledcSetup(FCORE_LED_CHENA, FCORE_LED_FREQ, 9);
     ledcAttachPin(FCORE_LED_PENA, FCORE_LED_CHENA);
     ledcWrite(FCORE_LED_CHENA, 0);
 
-    ledcSetup(FCORE_LED_CHADJ, FCORE_LED_FREQ, 7);
+    ledcSetup(FCORE_LED_CHADJ, FCORE_LED_FREQ, 9);
     ledcAttachPin(FCORE_LED_PADJ, FCORE_LED_CHADJ);
     ledcWrite(FCORE_LED_CHADJ, 0);
 

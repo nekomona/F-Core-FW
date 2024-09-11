@@ -6,6 +6,7 @@
 #include <BLE2902.h>
 
 #include <peripheral.hpp>
+#include <autolight.hpp>
 
 class ServerStatCallbacks: public BLEServerCallbacks {
     void onConnect(BLEServer* pServer) {
@@ -21,7 +22,7 @@ class ServerStatCallbacks: public BLEServerCallbacks {
 
 class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
 
-    uint8_t vreplys[10] = {'V', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\0'};
+    uint8_t vreplys[11] = {'V', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\0'};
 
     void onRead(BLECharacteristic *pCharacteristic) {
         Serial.println("Read");
@@ -34,9 +35,9 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
     }
 
     int getLedval(char *ch) {
-        int ledval = ((ch[0] - '0') % 10) * 10 + ((ch[1] - '0') % 10);
-        if (ledval == 99) ledval = 100;
-        return (ledval * 128) / 100;
+        int ledval = ((ch[0] - '0') % 10) * 100 + ((ch[1] - '0') % 10) * 10 + ((ch[2] - '0') % 10);
+        if (ledval == 399) ledval = 400;
+        return (ledval * 512) / 400;
     }
 
     void onWrite(BLECharacteristic *pCharacteristic) {
@@ -76,6 +77,29 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
 
                     Serial.printf("Set led-D %4d\n", fval);
                     break;
+                case 'L':
+                    fval = getFanval(&value[1]);
+                    autoLight.setAlpha((float)fval / 100.f);
+
+                    Serial.printf("Set auto-L %4d\n", fval);
+                    break;
+                case 'U':
+                    fval = value[1] - '0';
+                    if (fval) {
+                        autoLight.reset(peri.mlightval);
+                        autoLight.enabled = true;
+                    } else {
+                        autoLight.enabled = false;
+                    }
+
+                    Serial.printf("Set auto-U %4d\n", fval);
+                    break;
+                case 'M':
+                    fval = value[1] - '0';
+                    autoLight.setMul(fval);
+
+                    Serial.printf("Set auto-M %4d\n", fval);
+                    break;
                 case 'V':
                     vreplys[1] = peri.mvoltval & 0xFF;
                     vreplys[2] = (peri.mvoltval >> 8) & 0xFF;
@@ -85,7 +109,8 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
                     vreplys[6] = (peri.mlightval >> 8) & 0xFF;
                     vreplys[7] = (peri.mlightval >> 16) & 0xFF;
                     vreplys[8] = (peri.mlightval >> 24) & 0xFF;
-                    pCharacteristic->setValue(vreplys, 10);
+                    vreplys[9] = autoLight.interp_en & 0xFF;
+                    pCharacteristic->setValue(vreplys, sizeof(vreplys));
                     pCharacteristic->notify();
                     // Serial.printf("Get battery %5d %5d\n", (uint16_t)mvoltval, (uint16_t)(mampval));
                     break;
