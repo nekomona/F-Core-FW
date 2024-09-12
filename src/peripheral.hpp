@@ -21,8 +21,8 @@ public:
 
     void setFanF(uint8_t v);
     void setFanB(uint8_t v);
-    void setLightEna(uint8_t v);
-    void setLightAdj(uint8_t v);
+    void setLightEna(uint16_t v);
+    void setLightAdj(uint16_t v);
 };
 
 extern Peripheral peri;

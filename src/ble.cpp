@@ -22,7 +22,7 @@ class ServerStatCallbacks: public BLEServerCallbacks {
 
 class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
 
-    uint8_t vreplys[11] = {'V', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\0'};
+    uint8_t vreplys[12] = {'V', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '\0'};
 
     void onRead(BLECharacteristic *pCharacteristic) {
         Serial.println("Read");
@@ -110,6 +110,7 @@ class CharacteristicStatCallbacks: public BLECharacteristicCallbacks {
                     vreplys[7] = (peri.mlightval >> 16) & 0xFF;
                     vreplys[8] = (peri.mlightval >> 24) & 0xFF;
                     vreplys[9] = autoLight.interp_en & 0xFF;
+                    vreplys[10] = (autoLight.interp_en >> 8) & 0xFF;
                     pCharacteristic->setValue(vreplys, sizeof(vreplys));
                     pCharacteristic->notify();
                     // Serial.printf("Get battery %5d %5d\n", (uint16_t)mvoltval, (uint16_t)(mampval));

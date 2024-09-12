@@ -49,11 +49,11 @@ void Peripheral::setFanB(uint8_t v) {
     ledcWrite(FCORE_PWM_CHB, v);
 }
 
-void Peripheral::setLightEna(uint8_t v) {
+void Peripheral::setLightEna(uint16_t v) {
     ledcWrite(FCORE_LED_CHENA, v);
 }
 
-void Peripheral::setLightAdj(uint8_t v) {
+void Peripheral::setLightAdj(uint16_t v) {
     ledcWrite(FCORE_LED_CHADJ, v);
 }
 
