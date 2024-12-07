@@ -36,9 +36,29 @@ void Peripheral::loop() {
     mvoltval = (int16_t)(ina219.getBusVoltage_V() * 1000);
     mampval = (int16_t)(ina219.getCurrent_mA() * 10);
 
-    float ambf;
-    apds.readAmbientLightLux(ambf);
-    mlightval = (uint32_t)(ambf*100);
+    bool apds_good = true;
+    uint16_t apds_ch0, apds_ch1;
+    apds_good &= apds.readCh0Light(apds_ch0);
+    apds_good &= apds.readCh1Light(apds_ch1);
+    float ambf = apds.floatAmbientToLux(apds_ch0, apds_ch1);
+    // Sensor saturates at 19456, 406.f lux with gain=16
+    // Avoid ch1 continuous to rise when ch0 is already saturated
+    if (apds_ch0 > 19450) {
+        ambf = 406.f;
+    }
+
+    // Detect and skip abnormal value
+    if (ambf <= 410.f) {
+        mlightval = (uint32_t)(ambf*100);
+    } else {
+        apds_good = false;
+    }
+
+    if (!apds_good) {
+        apds.init();
+        apds.enableLightSensor(false);
+        apds.setAmbientLightGain(2);
+    }
 }
 
 void Peripheral::setFanF(uint8_t v) {
